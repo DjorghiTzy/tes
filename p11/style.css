@@ -1,0 +1,851 @@
+:root {
+  --bg: #f4f5f7;
+  --panel: #ffffff;
+  --border: #e2e4e9;
+  --text: #1c1e21;
+  --text-muted: #6b7280;
+  --accent: #2f6fed;
+  --accent-soft: #e8f0fe;
+  --danger: #d64545;
+  --danger-soft: #fbe9e9;
+  --warn: #b45309;
+  --warn-soft: #fef3c7;
+  --ok: #15803d;
+  --ok-soft: #dcfce7;
+  --radius: 10px;
+  font-size: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ============================================================
+   Layout dasar: sidebar + panel utama
+   ============================================================ */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar {
+  flex: none;
+  width: 280px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.back-to-menu {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 10px 16px 0;
+}
+
+.back-to-menu:hover {
+  color: var(--accent);
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-header h1 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.sidebar-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.action-btn-icon {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+/* Import: biru — data masuk ke aplikasi */
+.action-btn-import {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.action-btn-import:hover {
+  background: #d5e3fc;
+}
+
+/* Export: hijau — data keluar dari aplikasi */
+.action-btn-export {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.action-btn-export:hover {
+  background: #c5f0d3;
+}
+
+/* Tombol "+ Hari Baru" versi ikon bulat kecil — lebih ringkas dari tombol
+   lebar bertuliskan penuh, diletakkan sejajar dengan header sidebar. */
+.btn-icon-new-day {
+  margin: 10px 16px 4px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px dashed var(--border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--accent);
+  font-size: 1.1rem;
+  font-family: inherit;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.btn-icon-new-day:hover {
+  background: var(--accent-soft);
+}
+
+/* ---------- Breadcrumb arsip (Tahun > Bulan > Minggu > Hari) ---------- */
+
+.sidebar-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 0 14px 10px;
+}
+
+.breadcrumb-item {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.78rem;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 3px 5px;
+  border-radius: 5px;
+}
+
+.breadcrumb-item:hover {
+  background: var(--accent-soft);
+}
+
+.breadcrumb-item.current {
+  color: var(--text);
+  font-weight: 600;
+  cursor: default;
+}
+
+.breadcrumb-item.current:hover {
+  background: transparent;
+}
+
+.breadcrumb-sep {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+/* ---------- Header daftar arsip: judul level + tombol sort ---------- */
+
+.archive-list-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 4px 14px 8px;
+}
+
+.btn-sort-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.72rem;
+  padding: 4px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.btn-sort-toggle:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.btn-sort-toggle-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.date-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 10px 16px;
+}
+
+/* ---------- Baris arsip: level Tahun / Bulan / Minggu ---------- */
+/* Mirip .date-item, tapi tanpa nama hari karena isinya bukan tanggal spesifik. */
+
+.archive-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+
+.archive-row:hover {
+  background: var(--bg);
+}
+
+.archive-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.archive-row-label {
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.archive-row-count {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.date-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px 10px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin-bottom: 2px;
+  position: relative;
+}
+
+.date-item:hover {
+  background: var(--bg);
+}
+
+.date-item.active {
+  background: var(--accent-soft);
+}
+
+.date-item-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.date-item-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.date-item-day {
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.date-item.active .date-item-day {
+  color: var(--accent);
+}
+
+.date-item-count {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.date-item-full {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* ---------- Menu titik-tiga (opsi hapus hari) ---------- */
+
+.date-item-menu-wrap {
+  flex: none;
+  position: relative;
+}
+
+.btn-item-menu {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.btn-item-menu:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.item-menu-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 2px);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+  min-width: 130px;
+  overflow: hidden;
+}
+
+.item-menu-dropdown.show {
+  display: block;
+}
+
+.item-menu-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 9px 12px;
+  cursor: pointer;
+  color: var(--danger);
+}
+
+.item-menu-option:hover {
+  background: var(--danger-soft);
+}
+
+.date-list-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 20px 12px;
+  text-align: center;
+}
+
+/* ---------- Main panel ---------- */
+
+.main-panel {
+  flex: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 32px 60px;
+  width: 100%;
+}
+
+/* ---------- Panel KPI (grafik 7 hari terakhir) ---------- */
+
+.kpi-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 24px;
+}
+
+.kpi-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.kpi-panel-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.kpi-panel-avg {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.kpi-panel-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 12px 0 4px;
+}
+
+.kpi-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 110px;
+  margin-top: 16px;
+  position: relative;
+}
+
+.kpi-avg-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--text-muted);
+  opacity: 0.5;
+}
+
+.kpi-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 6px;
+  position: relative;
+}
+
+.kpi-bar-value {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.kpi-bar {
+  width: 100%;
+  max-width: 34px;
+  border-radius: 5px 5px 0 0;
+  background: var(--accent-soft);
+  min-height: 3px;
+}
+
+.kpi-bar.today {
+  background: var(--accent);
+}
+
+.kpi-bar.above-avg {
+  background: var(--ok-soft);
+}
+
+.kpi-bar.today.above-avg {
+  background: var(--ok);
+}
+
+.kpi-bar-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.kpi-bar-col.no-data .kpi-bar {
+  background: var(--bg);
+  border: 1px dashed var(--border);
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.day-header-title h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.day-header-sub {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ---------- Ringkasan hari ---------- */
+
+.day-summary {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0 20px;
+  flex-wrap: wrap;
+}
+
+.summary-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  min-width: 110px;
+}
+
+.summary-chip-label {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.summary-chip-value {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.summary-chip.warn {
+  background: var(--warn-soft);
+  border-color: var(--warn-soft);
+}
+
+.summary-chip.warn .summary-chip-value {
+  color: var(--warn);
+}
+
+.summary-chip.ok .summary-chip-value {
+  color: var(--ok);
+}
+
+/* ---------- Activity list ---------- */
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.activity-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  cursor: pointer;
+}
+
+.activity-card.conflict {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+}
+
+/* Kegiatan yang sudah ditandai selesai: aksen garis hijau tipis di kiri +
+   nama dicoret dengan warna senada, TANPA memudarkan seluruh kartu supaya
+   tetap terasa "berhasil dikerjakan", bukan "kartu nonaktif". */
+.activity-card.done {
+  border-left: 3px solid var(--ok);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  padding-left: 13px; /* 16px - 3px border, supaya konten tidak ikut geser */
+}
+
+.activity-card.done .activity-name {
+  text-decoration: line-through;
+  text-decoration-color: var(--ok);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+  color: var(--text-muted);
+}
+
+.activity-card.done .activity-number {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.activity-row-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.activity-number {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activity-card.conflict .activity-number {
+  background: var(--danger);
+  color: #fff;
+}
+
+.activity-name {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text);
+  padding: 4px 0;
+  min-width: 0;
+}
+
+.activity-name:focus {
+  outline: none;
+  border-bottom: 1px solid var(--accent);
+}
+
+.btn-delete {
+  flex: none;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.05rem;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+
+.btn-delete:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.activity-row-bottom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding-left: 38px;
+  flex-wrap: wrap;
+}
+
+.time-select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 4px 4px;
+  color: var(--text);
+}
+
+.time-sep {
+  color: var(--text-muted);
+}
+
+.time-dash {
+  color: var(--text-muted);
+  margin: 0 4px;
+}
+
+.duration-badge {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background: var(--bg);
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.conflict-badge {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--danger);
+  background: #fff;
+  border: 1px solid var(--danger);
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.activity-card.conflict .duration-badge {
+  display: none;
+}
+
+/* ---------- Add button ---------- */
+
+.btn-add {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.92rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-add:hover {
+  background: var(--accent-soft);
+}
+
+/* ---------- Empty state ---------- */
+
+.empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px 20px;
+  font-size: 0.92rem;
+}
+
+.empty-state-main {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 100px 20px;
+  font-size: 0.95rem;
+}
+
+/* ---------- Toast ---------- */
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--text);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 200;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ---------- Modal konfirmasi ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-box {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  max-width: 320px;
+  width: 90%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.modal-box p {
+  margin: 0 0 18px;
+  font-size: 0.94rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn {
+  font-size: 0.88rem;
+  font-family: inherit;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--bg);
+}
+
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #b83a3a;
+}
+
+/* ============================================================
+   Responsive: layout jadi vertikal di layar sempit
+   ============================================================ */
+
+@media (max-width: 720px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .date-list {
+    max-height: 220px;
+  }
+
+  .main-panel {
+    padding: 20px 16px 60px;
+  }
+
+  .activity-row-bottom {
+    padding-left: 0;
+  }
+
+  .duration-badge,
+  .conflict-badge {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+  }
+}

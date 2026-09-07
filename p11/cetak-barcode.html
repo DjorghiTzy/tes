@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cetak Barcode — Kegiatan</title>
+<link rel="stylesheet" href="style.css">
+<script src="api-client.js"></script>
+<script src="auth-guard.js"></script>
+<link rel="stylesheet" href="cetak-barcode.css">
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sidebar">
+      <a class="back-to-menu" href="menu.html" title="Kembali ke menu utama">&#8592; Menu</a>
+      <div class="sidebar-header">
+        <h1>Cetak Barcode</h1>
+      </div>
+
+      <div class="cb-sidebar-body">
+        <div class="cb-sidebar-section-title">
+          <span>Antrean Cetak</span>
+          <span class="cb-queue-count" id="queue-count">0</span>
+        </div>
+        <div class="cb-queue-list" id="queue-list">
+          <!-- Daftar SKU yang sudah disimpan dan menunggu dicetak, dirender oleh cetak-barcode.js -->
+        </div>
+        <div class="cb-sidebar-actions">
+          <button class="btn btn-outline" id="btn-clear-queue" title="Kosongkan antrean cetak">Kosongkan Antrean</button>
+        </div>
+
+        <div class="cb-sidebar-actions">
+          <button class="btn btn-primary" id="btn-export" title="Unduh label sebagai PDF atau Word">&#8681; Ekspor Label</button>
+        </div>
+
+        <div class="cb-sidebar-section-title cb-riwayat-title">
+          <span>Riwayat SKU</span>
+          <span class="cb-queue-count" id="riwayat-count">0</span>
+        </div>
+        <div class="cb-riwayat-list" id="riwayat-list">
+          <!-- Riwayat semua SKU yang pernah dibuat, dirender oleh cetak-barcode.js -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===================== MAIN PANEL ===================== -->
+    <main class="main-panel cb-main">
+
+      <div class="day-header">
+        <div class="day-header-title">
+          <h2>Input Data Barang</h2>
+          <span class="day-header-sub">Isi form di bawah, lalu simpan untuk melihat pratinjau label</span>
+        </div>
+      </div>
+
+      <div class="cb-layout">
+
+        <!-- ---------- Kolom kiri: Form ---------- -->
+        <div class="cb-form-col">
+
+          <div class="cb-mode-tabs">
+            <button type="button" class="cb-mode-tab active" data-mode="form" id="tab-form">Isi Form</button>
+            <button type="button" class="cb-mode-tab" data-mode="tempel" id="tab-tempel">Tempel Cepat</button>
+          </div>
+
+          <!-- Mode: Isi Form -->
+          <div class="cb-mode-panel active" id="panel-form">
+            <form id="barcode-form" novalidate>
+
+              <div class="cb-field">
+                <label class="cb-form-label" for="input-lokasi">Lokasi Rak</label>
+                <input class="cb-input" type="text" id="input-lokasi" placeholder="Contoh: C2" maxlength="12" autocomplete="off">
+                <span class="cb-field-error" id="err-lokasi"></span>
+              </div>
+
+              <div class="cb-field">
+                <label class="cb-form-label" for="input-nama">Nama Barang</label>
+                <input class="cb-input" type="text" id="input-nama" placeholder="Contoh: Olike Mic1 Tarnish White" maxlength="80" autocomplete="off">
+                <span class="cb-field-error" id="err-nama"></span>
+              </div>
+
+              <div class="cb-field">
+                <label class="cb-form-label" for="select-tipe">Tipe</label>
+                <select class="cb-input" id="select-tipe">
+                  <option value="" disabled selected>Pilih tipe&hellip;</option>
+                  <option value="Lifestyle">Lifestyle</option>
+                  <option value="Cable">Cable</option>
+                  <option value="Charger">Charger</option>
+                  <option value="Powerbank">Powerbank</option>
+                  <option value="Speaker">Speaker</option>
+                  <option value="Mouse">Mouse</option>
+                  <option value="Aksesoris">Aksesoris</option>
+                  <option value="__custom__">Isi sendiri&hellip;</option>
+                </select>
+                <input class="cb-input cb-input-custom-tipe" type="text" id="input-tipe-custom" placeholder="Ketik nama tipe baru" maxlength="30" autocomplete="off" hidden>
+                <span class="cb-field-error" id="err-tipe"></span>
+              </div>
+
+              <div class="cb-field">
+                <label class="cb-form-label" for="input-kode">Kode Barcode (EAN-13)</label>
+                <input class="cb-input cb-input-mono" type="text" id="input-kode" placeholder="Contoh: 8999123456789" maxlength="13" inputmode="numeric" autocomplete="off">
+                <span class="cb-field-hint">13 digit angka, sesuai barcode kemasan asli</span>
+                <span class="cb-field-error" id="err-kode"></span>
+              </div>
+
+              <div class="cb-form-actions">
+                <button type="button" class="btn btn-outline" id="btn-reset-form">Bersihkan</button>
+                <button type="submit" class="btn btn-primary" id="btn-save">Simpan &amp; Pratinjau</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Mode: Tempel Cepat -->
+          <div class="cb-mode-panel" id="panel-tempel">
+            <p class="cb-tempel-desc">
+              Tempel teks dengan format berikut (boleh salin dari catatan lain), lalu klik <strong>Proses Teks</strong> untuk mengisi form otomatis:
+            </p>
+            <pre class="cb-tempel-contoh">Lokasi: C2
+Nama: Olike Mic1 Tarnish White
+Tipe: Lifestyle
+Kode: 8999123456789</pre>
+            <textarea class="cb-textarea" id="input-tempel" placeholder="Tempel teks di sini&hellip;" rows="7"></textarea>
+            <span class="cb-field-error" id="err-tempel"></span>
+            <div class="cb-form-actions">
+              <button type="button" class="btn btn-outline" id="btn-reset-tempel">Bersihkan</button>
+              <button type="button" class="btn btn-primary" id="btn-proses-tempel">Proses Teks</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ---------- Kolom kanan: Preview ---------- -->
+        <div class="cb-preview-col">
+          <div class="cb-preview-heading-row">
+            <div class="cb-preview-heading">Pratinjau Label</div>
+            <div class="cb-warna-inline" id="warna-inline-wrap" title="Warna kotak lokasi rak untuk label ini">
+              <label for="input-warna-inline">Warna Lokasi</label>
+              <input type="color" id="input-warna-inline" value="#c00000">
+              <button type="button" class="cb-warna-inline-save" id="btn-warna-inline-save" title="Simpan warna ini" hidden>Simpan</button>
+              <button type="button" class="cb-warna-inline-reset" id="btn-warna-inline-reset" title="Kembalikan ke warna default">&#8635;</button>
+            </div>
+          </div>
+
+          <!-- ====== Panel Tampilan Label: 2 section terpisah ====== -->
+          <div class="cb-style-panel" id="cb-style-panel">
+            <button type="button" class="cb-style-panel-toggle" id="cb-style-panel-toggle">
+              <span>Pengaturan Tampilan Label</span>
+              <span class="cb-style-panel-caret">&#9662;</span>
+            </button>
+            <div class="cb-style-panel-body" id="cb-style-panel-body" hidden>
+
+              <!-- Section 1: LOKASI RAK (kotak kiri) -->
+              <div class="cb-style-section">
+                <div class="cb-style-section-title">1. Kotak "LOKASI RAK" (kiri)</div>
+                <div class="cb-style-row">
+                  <label for="style-kiri-font">Font Family</label>
+                  <select class="cb-input" id="style-kiri-font">
+                    <option value="Arial, Helvetica, sans-serif">Arial</option>
+                    <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                    <option value="'Courier New', Courier, monospace">Courier New</option>
+                    <option value="Georgia, serif">Georgia</option>
+                    <option value="Verdana, Geneva, sans-serif">Verdana</option>
+                    <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                    <option value="Tahoma, sans-serif">Tahoma</option>
+                    <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                  </select>
+                </div>
+                <div class="cb-style-row">
+                  <label for="style-kiri-warna-font">Warna Font</label>
+                  <input type="color" id="style-kiri-warna-font" value="#ffffff">
+                </div>
+              </div>
+
+              <!-- Section 2: Sisi kanan (Nama Barang, Tgl/PIC, Tipe, No. Barcode) -->
+              <div class="cb-style-section">
+                <div class="cb-style-section-title">2. Info Barang (kanan)</div>
+                <div class="cb-style-row">
+                  <label for="style-kanan-font">Font Family</label>
+                  <select class="cb-input" id="style-kanan-font">
+                    <option value="Arial, Helvetica, sans-serif">Arial</option>
+                    <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                    <option value="'Courier New', Courier, monospace">Courier New</option>
+                    <option value="Georgia, serif">Georgia</option>
+                    <option value="Verdana, Geneva, sans-serif">Verdana</option>
+                    <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                    <option value="Tahoma, sans-serif">Tahoma</option>
+                    <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                  </select>
+                </div>
+                <div class="cb-style-row">
+                  <label for="style-kanan-warna-font">Warna Font</label>
+                  <input type="color" id="style-kanan-warna-font" value="#000000">
+                </div>
+              </div>
+
+              <div class="cb-style-panel-actions">
+                <button type="button" class="btn btn-outline" id="btn-style-reset">Kembalikan Default</button>
+              </div>
+            </div>
+          </div>
+          <div class="cb-label-frame">
+            <div class="cb-label" id="label-preview">
+              <div class="cb-label-left">
+                <div class="cb-label-rak-title">LOKASI RAK</div>
+                <div class="cb-label-rak-divider"></div>
+                <div class="cb-label-rak-code" id="preview-lokasi">—</div>
+              </div>
+              <div class="cb-label-right">
+                <div class="cb-label-topline">
+                  <span id="preview-tgl">Tgl: _______</span>
+                  <span id="preview-pic">PIC: _______</span>
+                </div>
+                <div class="cb-label-nama" id="preview-nama">Nama Barang</div>
+                <div class="cb-label-tipe-badge" id="preview-tipe">TIPE</div>
+                <svg class="cb-label-barcode-svg" id="preview-barcode-svg"></svg>
+                <div class="cb-label-barcode-number" id="preview-kode">0000000000000</div>
+              </div>
+            </div>
+          </div>
+          <p class="cb-preview-note" id="preview-empty-note">Isi form di sebelah kiri untuk melihat pratinjau label secara langsung.</p>
+
+          <div class="cb-after-save" id="after-save-actions" hidden>
+            <p class="cb-after-save-text">Barang tersimpan. Lanjutkan?</p>
+            <div class="cb-after-save-buttons">
+              <button type="button" class="btn btn-outline" id="btn-tambah-lagi">+ Tambah SKU Lagi</button>
+              <button type="button" class="btn btn-primary" id="btn-selesai-cetak">Selesai &amp; Cetak Sekarang</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Modal konfirmasi hapus / kosongkan -->
+  <div class="modal-overlay" id="confirm-modal">
+    <div class="modal-box">
+      <p id="confirm-message">Yakin ingin menghapus?</p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="confirm-cancel">Batal</button>
+        <button class="btn btn-danger" id="confirm-ok">Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal pilih format ekspor -->
+  <div class="modal-overlay" id="export-modal">
+    <div class="modal-box">
+      <p id="export-message">Pilih format file untuk mengunduh label (ukuran 10&nbsp;cm &times; 3&nbsp;cm per label).</p>
+      <div class="modal-actions export-modal-actions">
+        <button class="btn btn-outline" id="export-cancel">Batal</button>
+        <button class="btn btn-outline" id="export-pdf">Unduh PDF</button>
+        <button class="btn btn-primary" id="export-docx">Unduh DOCX</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== AREA CETAK (tersembunyi di layar, tampil saat print) ===================== -->
+  <div class="cb-print-area" id="print-area"></div>
+
+  <script src="vendor-jsbarcode.min.js"></script>
+  <script src="vendor-jspdf.min.js"></script>
+  <script src="vendor-docx.min.js"></script>
+  <script src="cetak-barcode-style.js"></script>
+  <script src="cetak-barcode-export.js"></script>
+  <script src="cetak-barcode.js"></script>
+
+  <link rel="stylesheet" href="musik-player.css">
+  <script src="musik-player.js"></script>
+</body>
+</html>
