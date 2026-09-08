@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kegiatan Harian</title>
+<link rel="stylesheet" href="style.css">
+<script src="api-client.js"></script>
+<script src="auth-guard.js"></script>
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sidebar">
+      <a class="back-to-menu" href="menu.html" title="Kembali ke menu utama">&#8592; Menu</a>
+      <div class="sidebar-header">
+        <h1>Kegiatan</h1>
+        <div class="sidebar-actions">
+          <label class="action-btn action-btn-import" for="file-import" title="Import file XLSX (maksimal 1 minggu / 7 hari per file)">
+            <span class="action-btn-icon">&#8595;</span> Import
+            <input type="file" id="file-import" accept=".xlsx,.xls" hidden>
+          </label>
+          <button class="action-btn action-btn-export" id="btn-export" title="Export minggu yang sedang dibuka menjadi file XLSX (pilih minggu dulu di sidebar)">
+            <span class="action-btn-icon">&#8593;</span> Export
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-icon-new-day" id="btn-new-day" title="Tambah hari baru">+</button>
+
+      <div class="sidebar-breadcrumb" id="date-breadcrumb">
+        <!-- Breadcrumb arsip (Tahun > Bulan > Minggu > Hari) dirender oleh app.js -->
+      </div>
+
+      <div class="archive-list-header" id="archive-list-header">
+        <!-- Judul level (mis. "Minggu 1") + tombol sort dirender oleh app.js -->
+      </div>
+
+      <div class="date-list" id="date-list">
+        <!-- Daftar tanggal / arsip dirender oleh app.js -->
+      </div>
+    </aside>
+
+    <!-- ===================== MAIN PANEL ===================== -->
+    <main class="main-panel">
+
+      <div class="day-header">
+        <div class="day-header-title">
+          <h2 id="day-title">—</h2>
+          <span class="day-header-sub" id="day-subtitle"></span>
+        </div>
+      </div>
+
+      <div class="activity-list" id="activity-list">
+        <!-- Kegiatan dirender oleh app.js -->
+      </div>
+
+      <button class="btn-add" id="btn-add-activity">+ Tambah Kegiatan</button>
+
+    </main>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Modal konfirmasi hapus -->
+  <div class="modal-overlay" id="confirm-modal">
+    <div class="modal-box">
+      <p id="confirm-message">Yakin ingin menghapus?</p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="confirm-cancel">Batal</button>
+        <button class="btn btn-danger" id="confirm-ok">Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+
+  <link rel="stylesheet" href="musik-player.css">
+  <script src="musik-player.js"></script>
+</body>
+</html>

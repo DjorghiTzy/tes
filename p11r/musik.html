@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Musik — Kegiatan</title>
+<link rel="stylesheet" href="style.css">
+<script src="api-client.js"></script>
+<script src="auth-guard.js"></script>
+<style>
+  .musik-page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 24px 120px;
+  }
+
+  .musik-topbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+
+  .musik-topbar h1 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .musik-topbar .back-to-menu {
+    padding: 0;
+  }
+
+  .musik-hero {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .musik-hero p {
+    margin: 0 0 14px;
+    font-size: 0.86rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .musik-hero p code {
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 0.82em;
+  }
+
+  .musik-import-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 500;
+    padding: 10px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: filter 0.12s ease, transform 0.1s ease;
+  }
+
+  .musik-import-btn:hover {
+    filter: brightness(1.06);
+  }
+
+  .musik-import-btn:active {
+    transform: scale(0.97);
+  }
+
+  .musik-import-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .musik-section-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: 24px 0 10px;
+  }
+
+  .musik-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .musik-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    transition: border-color 0.12s ease;
+  }
+
+  .musik-item.is-aktif {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .musik-item-play {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text);
+  }
+
+  .musik-item.is-aktif .musik-item-play {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .musik-item-play svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .musik-item-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .musik-item-nama {
+    font-size: 0.86rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .musik-item-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .musik-item-hapus {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+
+  .musik-item-hapus:hover {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+
+  .musik-item-hapus svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .musik-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 0.86rem;
+    background: var(--panel);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+  }
+
+  .musik-empty svg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+  }
+
+  .musik-progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .musik-progress-bar.show {
+    display: block;
+  }
+
+  .musik-progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.15s ease;
+  }
+</style>
+</head>
+<body>
+
+  <div class="musik-page">
+    <div class="musik-topbar">
+      <a class="back-to-menu" href="menu.html" title="Kembali ke menu utama">&#8592; Menu</a>
+      <h1>Musik</h1>
+    </div>
+
+    <div class="musik-hero">
+      <p>
+        Impor lagu untuk diputar sebagai musik latar. Pemutar akan tetap
+        berjalan di semua halaman aplikasi ini selama kamu berpindah menu,
+        dan otomatis melanjutkan dari posisi terakhir. Gunakan musik hasil
+        AI (bebas hak cipta) — format yang didukung: <code>.mp3</code>,
+        <code>.wav</code>, <code>.ogg</code>, <code>.m4a</code>.
+      </p>
+      <label class="musik-import-btn" for="musik-file-input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        Impor Musik
+        <input type="file" id="musik-file-input" accept="audio/*,.mp3,.wav,.ogg,.m4a" multiple hidden>
+      </label>
+      <div class="musik-progress-bar" id="musik-progress-bar">
+        <div class="musik-progress-bar-fill" id="musik-progress-bar-fill"></div>
+      </div>
+    </div>
+
+    <div class="musik-section-title">Daftar Putar</div>
+    <div class="musik-list" id="musik-list">
+      <!-- Diisi oleh musik.js -->
+    </div>
+    <div class="musik-empty" id="musik-empty" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto;display:block;"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+      Belum ada musik. Klik "Impor Musik" untuk menambahkan lagu pertamamu.
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Modal konfirmasi hapus (memakai style yang sama dengan halaman lain) -->
+  <div class="modal-overlay" id="confirm-modal">
+    <div class="modal-box">
+      <p id="confirm-message">Yakin ingin menghapus lagu ini?</p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="confirm-cancel">Batal</button>
+        <button class="btn btn-danger" id="confirm-ok">Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <link rel="stylesheet" href="musik-player.css">
+  <script src="musik-player.js"></script>
+  <script src="musik.js"></script>
+</body>
+</html>
