@@ -30,3 +30,4 @@ Database akan membuat tabel sendiri saat API pertama kali dipanggil, jadi tidak 
 Audio yang sebelumnya tersimpan di IndexedDB akan dicoba dipindahkan otomatis ke Vercel Blob saat halaman Musik pertama kali dibuka.
 
 Batas request Vercel Functions adalah 4.5 MB, sehingga upload musik menggunakan client upload langsung ke Vercel Blob, termasuk multipart untuk file besar.
+Deployment trigger 2026-09-08
